@@ -1,0 +1,1076 @@
+/* ==========================================================================
+   YORU (夜) — Japanese Jazz Kissaten Design System
+   Inspired by 1970s Tokyo Jazz Cafés: Dim, Warm, Analog, Unhurried.
+   ========================================================================== */
+
+/* Google Fonts Imports */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Shippori+Mincho:wght@400;500;600&family=Work+Sans:wght@300;400;500&display=swap');
+
+:root {
+  /* Strict Palette */
+  --bg: #161B22;          /* Near-black ink */
+  --accent: #C9A227;      /* Brass/gold, lit filament */
+  --secondary: #3F5648;   /* Muted forest green */
+  --tertiary: #6B4257;    /* Dusty plum, shadow/depth */
+  --text: #EDE6D6;        /* Warm parchment, never pure white */
+
+  /* Derived Tonal Opacities (strictly using the 5 base colors) */
+  --text-muted: rgba(237, 230, 214, 0.62);
+  --text-faint: rgba(237, 230, 214, 0.35);
+  --brass-glow: rgba(201, 162, 39, 0.32);
+  --brass-faint: rgba(201, 162, 39, 0.12);
+  --plum-depth: rgba(107, 66, 87, 0.38);
+  --forest-dark: rgba(63, 86, 72, 0.45);
+  --border-groove: rgba(237, 230, 214, 0.12);
+
+  /* Typography */
+  --font-serif: 'Fraunces', 'Shippori Mincho', Georgia, serif;
+  --font-sans: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-jp: 'Shippori Mincho', 'Fraunces', serif;
+
+  /* Spacing */
+  --gutter: clamp(1.5rem, 4vw, 3.5rem);
+  --max-width: 1240px;
+}
+
+/* Base Reset & Typography */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.75;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  /* Very subtle analog grain texture using procedural SVG data URI */
+  background-image: 
+    radial-gradient(ellipse at 85% 15%, rgba(107, 66, 87, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 15% 75%, rgba(63, 86, 72, 0.15) 0%, transparent 65%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+/* Accessibility: Selection */
+::selection {
+  background-color: var(--tertiary);
+  color: var(--text);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   Top Masthead / Quiet Navigation
+   ========================================================================== */
+.masthead {
+  padding: 2rem var(--gutter) 1.5rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid rgba(237, 230, 214, 0.08);
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25rem;
+}
+
+.brand-kanji {
+  font-family: var(--font-jp);
+  font-size: 1.75rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  line-height: 1;
+  text-shadow: 0 0 12px var(--brass-glow);
+}
+
+.brand-name {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  letter-spacing: 0.3em;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.brand-sub {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  font-family: var(--font-sans);
+}
+
+.masthead-meta {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.filament-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--accent);
+  box-shadow: 0 0 8px 2px var(--brass-glow);
+  display: inline-block;
+  transition: opacity 0.5s ease;
+}
+
+/* Analog Audio Switch Button (Quiet, tactile, zero modern SaaS pill styling) */
+.ambient-toggle {
+  background: transparent;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ambient-toggle:hover {
+  border-color: var(--accent);
+  background: rgba(201, 162, 39, 0.08);
+}
+
+.ambient-toggle.active {
+  background: rgba(201, 162, 39, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   Hero Section: Asymmetric Composition
+   ========================================================================== */
+.hero-section {
+  max-width: var(--max-width);
+  margin: 3.5rem auto 5rem;
+  padding: 0 var(--gutter);
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 6rem);
+  position: relative;
+}
+
+.hero-liner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.85rem;
+  position: relative;
+  z-index: 2;
+}
+
+.catalog-mark {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  color: var(--text-faint);
+  font-family: var(--font-sans);
+}
+
+.catalog-mark .serial {
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.hero-tagline {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(2.4rem, 4.2vw, 3.8rem);
+  line-height: 1.2;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  font-style: italic;
+  max-width: 18ch;
+}
+
+.hero-tagline em {
+  font-style: normal;
+  color: var(--accent);
+  position: relative;
+}
+
+.hero-liner-body {
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: var(--text-muted);
+  max-width: 44ch;
+}
+
+.hero-spec-notes {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgba(237, 230, 214, 0.08);
+}
+
+.spec-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.spec-title {
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  opacity: 0.9;
+}
+
+.spec-val {
+  font-size: 0.88rem;
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+/* ==========================================================================
+   Turntable Deck & Vinyl Animation Component
+   ========================================================================== */
+.turntable-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.turntable-deck {
+  width: min(100%, 480px);
+  aspect-ratio: 1 / 1;
+  background: radial-gradient(circle at 40% 40%, #202630 0%, #13171d 100%);
+  border: 1px solid rgba(201, 162, 39, 0.22);
+  position: relative;
+  box-shadow: 
+    0 30px 60px -15px rgba(0, 0, 0, 0.85),
+    inset 0 0 40px rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+}
+
+/* Turntable Platter Inset */
+.platter-recess {
+  width: 86%;
+  height: 86%;
+  border-radius: 50%;
+  background: #111419;
+  box-shadow: 
+    inset 0 4px 18px rgba(0, 0, 0, 0.95),
+    0 0 0 2px rgba(237, 230, 214, 0.03);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* Vinyl Disc */
+.vinyl-record {
+  width: 96%;
+  height: 96%;
+  border-radius: 50%;
+  background: 
+    /* Repeating fine micro-grooves */
+    repeating-radial-gradient(
+      circle at center,
+      #0d1014 0,
+      #0d1014 2px,
+      #171b22 3px,
+      #0d1014 4px
+    );
+  box-shadow: 
+    0 8px 30px rgba(0, 0, 0, 0.9),
+    inset 0 0 2px rgba(255, 255, 255, 0.08);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: default;
+  /* Looping slow rotation */
+  animation: spinVinyl 32s linear infinite;
+  transform-origin: center center;
+}
+
+/* Anamorphic light sheen across spinning vinyl grooves */
+.vinyl-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 35deg at 50% 50%,
+    transparent 0deg,
+    rgba(237, 230, 214, 0.07) 40deg,
+    transparent 80deg,
+    transparent 180deg,
+    rgba(201, 162, 39, 0.06) 220deg,
+    transparent 260deg,
+    transparent 360deg
+  );
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* Center Record Label */
+.vinyl-label {
+  width: 37%;
+  height: 37%;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #784860 0%, var(--tertiary) 75%, #462837 100%);
+  border: 1.5px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-shadow: 
+    inset 0 0 10px rgba(0, 0, 0, 0.6),
+    0 0 4px rgba(0, 0, 0, 0.8);
+  padding: 0.5rem;
+  z-index: 2;
+  user-select: none;
+}
+
+.label-title {
+  font-family: var(--font-jp);
+  font-size: 1.15rem;
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: 0.1em;
+}
+
+.label-side {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  color: var(--text);
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.label-meta {
+  font-size: 0.52rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  margin-top: 0.15rem;
+}
+
+/* Brass Center Spindle */
+.vinyl-spindle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #e9cd6b, var(--accent) 70%, #6e550e);
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.9);
+  position: absolute;
+  z-index: 3;
+}
+
+/* Tonearm Assembly */
+.tonearm-assembly {
+  position: absolute;
+  top: 6%;
+  right: 6%;
+  width: 130px;
+  height: 290px;
+  pointer-events: none;
+  z-index: 10;
+  transform-origin: 85px 45px;
+  /* Default State: Resting slightly off the groove */
+  transform: rotate(-14deg);
+  transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Active Class: Tonearm lowers onto the record disc as the Menu section enters view */
+.tonearm-assembly.needle-dropped {
+  transform: rotate(18deg);
+}
+
+/* Pivot Base */
+.tonearm-pivot {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #3a424e 0%, #1a1e26 100%);
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.8);
+}
+
+.tonearm-counterweight {
+  position: absolute;
+  top: 10px;
+  right: 32px;
+  width: 30px;
+  height: 18px;
+  background: linear-gradient(to right, #6b5514, var(--accent), #453609);
+  border-radius: 2px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.7);
+}
+
+/* Brass Tonearm Tube */
+.tonearm-rod {
+  position: absolute;
+  top: 45px;
+  right: 43px;
+  width: 4.5px;
+  height: 215px;
+  background: linear-gradient(to right, #91751c, var(--accent) 55%, #ffe685 85%, #665211);
+  border-radius: 2px;
+  transform: rotate(-7deg);
+  transform-origin: top center;
+  box-shadow: 3px 6px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* Cartridge & Stylus Headshell */
+.tonearm-headshell {
+  position: absolute;
+  bottom: 0;
+  left: -8px;
+  width: 18px;
+  height: 34px;
+  background: #0e1217;
+  border: 1px solid var(--accent);
+  transform: rotate(20deg);
+  transform-origin: top center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.85);
+}
+
+.tonearm-stylus {
+  position: absolute;
+  bottom: -3px;
+  left: 6px;
+  width: 3px;
+  height: 5px;
+  background: var(--accent);
+  box-shadow: 0 0 4px var(--brass-glow);
+}
+
+/* Turntable Plinth Strobe & Branding */
+.deck-badge {
+  position: absolute;
+  bottom: 14px;
+  left: 18px;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--text-faint);
+  font-family: var(--font-sans);
+}
+
+.deck-status-readout {
+  position: absolute;
+  bottom: 14px;
+  right: 18px;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+@keyframes spinVinyl {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Concentric Arc Dividers (Record Grooves instead of straight hairlines)
+   ========================================================================== */
+.groove-divider {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 3.5rem auto;
+  padding: 0 var(--gutter);
+  position: relative;
+  overflow: hidden;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.groove-divider svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.groove-divider path {
+  fill: none;
+  stroke: var(--border-groove);
+  stroke-width: 1px;
+}
+
+.groove-divider path.accent-arc {
+  stroke: rgba(201, 162, 39, 0.28);
+  stroke-dasharray: 400 300;
+}
+
+.groove-divider path.plum-arc {
+  stroke: rgba(107, 66, 87, 0.32);
+}
+
+/* ==========================================================================
+   Kissaten Ethos Section: The Liner Notes / Philosophy
+   ========================================================================== */
+.ethos-section {
+  max-width: var(--max-width);
+  margin: 0 auto 4.5rem;
+  padding: 0 var(--gutter);
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+
+.ethos-sidebar {
+  position: sticky;
+  top: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.ethos-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 2.8vw, 2.4rem);
+  line-height: 1.25;
+  font-weight: 300;
+  color: var(--text);
+}
+
+.ethos-quote {
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  border-left: 2px solid var(--secondary);
+  padding-left: 1rem;
+  margin-top: 1rem;
+  line-height: 1.7;
+}
+
+.ethos-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+}
+
+.ethos-paragraph {
+  font-size: 1.05rem;
+  line-height: 2;
+  color: var(--text-muted);
+}
+
+.ethos-paragraph strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.ethos-vignettes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(237, 230, 214, 0.08);
+}
+
+.vignette-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vignette-num {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--accent);
+  font-style: italic;
+}
+
+.vignette-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--text);
+}
+
+.vignette-body {
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Menu Section: Tracklist Sleeve Layout (Side A & Side B)
+   Strictly NOT generic SaaS cards. Editorial record sleeve typography.
+   ========================================================================== */
+.menu-section {
+  max-width: var(--max-width);
+  margin: 2rem auto 5.5rem;
+  padding: 0 var(--gutter);
+  position: relative;
+}
+
+.menu-masthead {
+  text-align: left;
+  margin-bottom: 3.5rem;
+  border-bottom: 1px solid rgba(237, 230, 214, 0.08);
+  padding-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.menu-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.menu-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.5vw, 2.9rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+.menu-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+.needle-status-notice {
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-family: var(--font-sans);
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent);
+  border-radius: 50%;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; box-shadow: 0 0 6px var(--accent); }
+}
+
+/* Tracklist Gatefold Grid (Side A / Side B) */
+.tracklist-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2.5rem, 6vw, 5.5rem);
+}
+
+.tracklist-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.side-header {
+  border-bottom: 1px solid rgba(201, 162, 39, 0.35);
+  padding-bottom: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.side-badge {
+  font-family: var(--font-serif);
+  font-size: 1.45rem;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  font-style: italic;
+}
+
+.side-title {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+
+.side-runtime {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  font-family: var(--font-sans);
+}
+
+/* Individual Tracks */
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  list-style: none;
+}
+
+.track-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  position: relative;
+  transition: opacity 0.3s ease;
+}
+
+.track-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.track-title-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  flex: 1;
+}
+
+.track-index {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  color: var(--accent);
+  opacity: 0.85;
+  width: 2ch;
+}
+
+.track-name {
+  font-family: var(--font-serif);
+  font-size: 1.18rem;
+  color: var(--text);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.track-jp-name {
+  font-family: var(--font-jp);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-left: 0.4rem;
+  font-weight: 400;
+}
+
+.track-leader {
+  flex: 1;
+  border-bottom: 1px dotted rgba(237, 230, 214, 0.15);
+  margin: 0 0.5rem 0.3rem;
+  min-width: 20px;
+}
+
+.track-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25rem;
+}
+
+.track-duration {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  font-family: var(--font-sans);
+}
+
+.track-price {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.track-desc {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  padding-left: 2.25rem;
+  max-width: 48ch;
+}
+
+/* ==========================================================================
+   The Atmosphere / In-Store Rules Note (Analog Kissaten Etiquette)
+   ========================================================================== */
+.etiquette-note {
+  margin-top: 4rem;
+  padding: 1.85rem 2.25rem;
+  border: 1px solid rgba(63, 86, 72, 0.5);
+  background: rgba(22, 27, 34, 0.85);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.etiquette-text {
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.etiquette-text strong {
+  color: var(--text);
+}
+
+.etiquette-tag {
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--secondary);
+  font-family: var(--font-sans);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Footer: Dusk Till Dawn, Location & Daily Vinyl
+   ========================================================================== */
+.site-footer {
+  border-top: 1px solid rgba(237, 230, 214, 0.08);
+  background: rgba(17, 21, 27, 0.95);
+  padding: 4.5rem var(--gutter) 3rem;
+}
+
+.footer-content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1.3fr;
+  gap: clamp(2rem, 4vw, 4.5rem);
+  padding-bottom: 3.5rem;
+  border-bottom: 1px solid rgba(237, 230, 214, 0.08);
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-col-title {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  font-family: var(--font-sans);
+}
+
+.footer-hours-value {
+  font-family: var(--font-serif);
+  font-size: 1.55rem;
+  color: var(--text);
+  font-weight: 300;
+  line-height: 1.3;
+}
+
+.footer-sub {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.footer-address {
+  font-style: normal;
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.footer-address .jp-addr {
+  font-family: var(--font-jp);
+  color: var(--text-faint);
+  font-size: 0.82rem;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* Now Spinning Card on Footer */
+.now-spinning-card {
+  border: 1px solid rgba(201, 162, 39, 0.28);
+  background: rgba(22, 27, 34, 0.8);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  position: relative;
+}
+
+.spinning-indicator-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.spinning-label-pill {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  font-family: var(--font-sans);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.spinning-disc-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--tertiary);
+  border: 1px solid var(--accent);
+  animation: spinVinyl 8s linear infinite;
+}
+
+.spinning-album-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--text);
+  font-weight: 400;
+}
+
+.spinning-album-artist {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.spinning-meta {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  font-family: var(--font-sans);
+  border-top: 1px solid rgba(237, 230, 214, 0.06);
+  padding-top: 0.5rem;
+}
+
+/* Footer Bottom Bar */
+.footer-bottom {
+  max-width: var(--max-width);
+  margin: 2rem auto 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.footer-kanji-seal {
+  font-family: var(--font-jp);
+  color: var(--accent);
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+@media (max-width: 960px) {
+  .hero-section {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  
+  .turntable-deck {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .ethos-section {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .ethos-sidebar {
+    position: static;
+  }
+
+  .tracklist-grid {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .masthead {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-tagline {
+    font-size: 2.1rem;
+  }
+
+  .track-desc {
+    padding-left: 0;
+  }
+
+  .ethos-vignettes {
+    grid-template-columns: 1fr;
+  }
+
+  .etiquette-note {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion Accessibility
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .vinyl-record,
+  .spinning-disc-icon {
+    animation: none !important;
+  }
+
+  .tonearm-assembly {
+    transition: none !important;
+  }
+}
