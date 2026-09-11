@@ -1,0 +1,503 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Smart Café (YORU) REST API",
+    "description": "Comprehensive RESTful backend for the Smart Café web application. Features Japanese Jazz Kissaten menu curation, order tracking, slot-based reservations, Firebase user authentication and sync, and AI-powered flavor recommendations.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Smart Café Backend Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5001",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Firebase Auth ID Token obtained after signInWithPopup/signInWithEmailAndPassword on the frontend."
+      },
+      "DevUserId": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-dev-user-id",
+        "description": "Local development bypass header. Set to 'usr_guest_demo' or 'usr_admin_demo'."
+      }
+    },
+    "schemas": {
+      "MenuItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "menu_001" },
+          "name": { "type": "string", "example": "Midnight Nel Drip" },
+          "japaneseName": { "type": "string", "example": "深夜ネルドリップ" },
+          "categoryId": { "type": "string", "example": "cat_dark_roast" },
+          "categoryName": { "type": "string", "example": "Dark Extractions & Nel Drip" },
+          "price": { "type": "number", "example": 850 },
+          "currency": { "type": "string", "example": "JPY" },
+          "trackCode": { "type": "string", "example": "A1" },
+          "durationMinutes": { "type": "number", "example": 4.5 },
+          "description": { "type": "string" },
+          "flavorProfile": { "type": "array", "items": { "type": "string" }, "example": ["bitter-rich", "molasses"] },
+          "roastLevel": { "type": "string", "example": "Dark Roast" },
+          "caffeineLevel": { "type": "string", "example": "High" },
+          "isAvailable": { "type": "boolean", "example": true },
+          "isSignature": { "type": "boolean", "example": true },
+          "allergens": { "type": "array", "items": { "type": "string" } },
+          "vinylPairing": { "type": "string", "example": "Ryo Fukui Trio — 'Scenery' (1976)" }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "ord_1001" },
+          "orderCode": { "type": "string", "example": "YORU-ORD-1001" },
+          "userId": { "type": "string", "example": "usr_guest_demo" },
+          "orderType": { "type": "string", "enum": ["dine-in", "takeaway"], "example": "dine-in" },
+          "tableNumber": { "type": "string", "example": "T-03" },
+          "subtotal": { "type": "number", "example": 1600 },
+          "tax": { "type": "number", "example": 160 },
+          "total": { "type": "number", "example": 1760 },
+          "currency": { "type": "string", "example": "JPY" },
+          "status": { "type": "string", "enum": ["received", "preparing", "ready", "completed", "cancelled"], "example": "preparing" }
+        }
+      },
+      "Reservation": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "res_2001" },
+          "reservationCode": { "type": "string", "example": "YORU-RES-2001" },
+          "customerName": { "type": "string", "example": "Aoi Tanaka" },
+          "customerPhone": { "type": "string", "example": "+81 90-9876-5432" },
+          "partySize": { "type": "integer", "example": 2 },
+          "date": { "type": "string", "format": "date", "example": "2026-09-12" },
+          "timeSlot": { "type": "string", "example": "20:00" },
+          "seatingArea": { "type": "string", "example": "booth" },
+          "status": { "type": "string", "enum": ["pending", "confirmed", "seated", "completed", "cancelled"] }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Checks server health, uptime, and database connection status.",
+        "responses": {
+          "200": { "description": "Server healthy" }
+        }
+      }
+    },
+    "/api/menu": {
+      "get": {
+        "summary": "List Menu Items",
+        "description": "Returns menu items with optional category filtering, keyword search, tag matching, and sorting.",
+        "parameters": [
+          { "name": "category", "in": "query", "schema": { "type": "string" }, "description": "Filter by category ID or code (e.g. 'cat_dark_roast' or 'siphon')" },
+          { "name": "search", "in": "query", "schema": { "type": "string" }, "description": "Search item name or notes" },
+          { "name": "isAvailable", "in": "query", "schema": { "type": "boolean" } },
+          { "name": "isSignature", "in": "query", "schema": { "type": "boolean" } },
+          { "name": "tag", "in": "query", "schema": { "type": "string" } },
+          { "name": "sortBy", "in": "query", "schema": { "type": "string", "default": "trackCode" } },
+          { "name": "sortOrder", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"], "default": "asc" } }
+        ],
+        "responses": {
+          "200": { "description": "List of menu items" }
+        }
+      },
+      "post": {
+        "summary": "Create Menu Item (Admin/Staff)",
+        "security": [{ "BearerAuth": [] }, { "DevUserId": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "categoryId", "price"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "japaneseName": { "type": "string" },
+                  "categoryId": { "type": "string" },
+                  "price": { "type": "number" },
+                  "description": { "type": "string" },
+                  "flavorProfile": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Item created" }
+        }
+      }
+    },
+    "/api/menu/categories": {
+      "get": {
+        "summary": "List Menu Categories",
+        "description": "Returns categories with total item count in each category.",
+        "responses": {
+          "200": { "description": "List of categories" }
+        }
+      }
+    },
+    "/api/menu/featured": {
+      "get": {
+        "summary": "Featured & Signature Items",
+        "responses": {
+          "200": { "description": "Featured menu items" }
+        }
+      }
+    },
+    "/api/menu/{id}": {
+      "get": {
+        "summary": "Get Menu Item Details",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Menu item details" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "put": {
+        "summary": "Update Menu Item (Admin/Staff)",
+        "security": [{ "BearerAuth": [] }, { "DevUserId": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Updated menu item" }
+        }
+      },
+      "delete": {
+        "summary": "Delete Menu Item (Admin)",
+        "security": [{ "BearerAuth": [] }, { "DevUserId": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Item deleted" }
+        }
+      }
+    },
+    "/api/orders": {
+      "post": {
+        "summary": "Place an Order",
+        "description": "Creates an order, validates menu item availability, computes taxes and totals, and generates live tracking code.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["items"],
+                "properties": {
+                  "orderType": { "type": "string", "enum": ["dine-in", "takeaway"], "default": "dine-in" },
+                  "tableNumber": { "type": "string", "example": "T-03" },
+                  "customerInfo": {
+                    "type": "object",
+                    "properties": {
+                      "name": { "type": "string" },
+                      "email": { "type": "string" },
+                      "phone": { "type": "string" }
+                    }
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["menuItemId", "quantity"],
+                      "properties": {
+                        "menuItemId": { "type": "string", "example": "menu_001" },
+                        "quantity": { "type": "integer", "example": 1 },
+                        "customizations": { "type": "object", "example": { "cream": "Fresh Hokkaido Jersey Cream (+¥50)" } }
+                      }
+                    }
+                  },
+                  "notes": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Order created" }
+        }
+      },
+      "get": {
+        "summary": "List Orders (Staff/Admin)",
+        "security": [{ "BearerAuth": [] }, { "DevUserId": [] }],
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "userId", "in": "query", "schema": { "type": "string" } },
+          { "name": "orderType", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "List of orders" }
+        }
+      }
+    },
+    "/api/orders/{id}": {
+      "get": {
+        "summary": "Get Order Tracking Details",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Order tracking details" }
+        }
+      }
+    },
+    "/api/orders/{id}/status": {
+      "patch": {
+        "summary": "Update Order Status (Staff/Admin)",
+        "security": [{ "BearerAuth": [] }, { "DevUserId": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["status"],
+                "properties": {
+                  "status": { "type": "string", "enum": ["received", "preparing", "ready", "completed", "cancelled"] },
+                  "note": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Status updated" }
+        }
+      }
+    },
+    "/api/orders/my-orders": {
+      "get": {
+        "summary": "Get Current User Orders",
+        "security": [{ "BearerAuth": [] }, { "DevUserId": [] }],
+        "responses": {
+          "200": { "description": "Customer order history" }
+        }
+      }
+    },
+    "/api/reservations/availability": {
+      "get": {
+        "summary": "Check Available Reservation Slots",
+        "parameters": [
+          { "name": "date", "in": "query", "required": true, "schema": { "type": "string", "format": "date" }, "example": "2026-09-12" },
+          { "name": "partySize", "in": "query", "schema": { "type": "integer", "default": 2 } },
+          { "name": "seatingArea", "in": "query", "schema": { "type": "string", "enum": ["vinyl-listening-bar", "booth", "window"] } }
+        ],
+        "responses": {
+          "200": { "description": "Available time slots" }
+        }
+      }
+    },
+    "/api/reservations": {
+      "post": {
+        "summary": "Book a Reservation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["customerName", "customerPhone", "date", "timeSlot"],
+                "properties": {
+                  "customerName": { "type": "string" },
+                  "customerEmail": { "type": "string" },
+                  "customerPhone": { "type": "string" },
+                  "partySize": { "type": "integer", "default": 2 },
+                  "date": { "type": "string", "format": "date" },
+                  "timeSlot": { "type": "string", "example": "20:00" },
+                  "seatingArea": { "type": "string", "example": "booth" },
+                  "specialOccasion": { "type": "string" },
+                  "notes": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Reservation confirmed" }
+        }
+      },
+      "get": {
+        "summary": "List Reservations (Staff/Admin)",
+        "security": [{ "BearerAuth": [] }, { "DevUserId": [] }],
+        "responses": {
+          "200": { "description": "List of reservations" }
+        }
+      }
+    },
+    "/api/reservations/{id}": {
+      "get": {
+        "summary": "Get Reservation Details",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Reservation details" }
+        }
+      },
+      "delete": {
+        "summary": "Cancel Reservation",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Reservation cancelled" }
+        }
+      }
+    },
+    "/api/reservations/{id}/status": {
+      "patch": {
+        "summary": "Update Reservation Status (Staff/Admin)",
+        "security": [{ "BearerAuth": [] }, { "DevUserId": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["status"],
+                "properties": {
+                  "status": { "type": "string", "enum": ["pending", "confirmed", "seated", "completed", "cancelled"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Status updated" }
+        }
+      }
+    },
+    "/api/users/sync": {
+      "post": {
+        "summary": "Sync Firebase Auth User",
+        "description": "Registers or updates user document upon Firebase sign-in. Awards 50 welcome loyalty points on first signup.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firebaseUid": { "type": "string" },
+                  "email": { "type": "string" },
+                  "displayName": { "type": "string" },
+                  "photoUrl": { "type": "string" },
+                  "phone": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User profile synced" }
+        }
+      }
+    },
+    "/api/users/profile": {
+      "get": {
+        "summary": "Get Authenticated User Profile",
+        "security": [{ "BearerAuth": [] }, { "DevUserId": [] }],
+        "responses": {
+          "200": { "description": "User profile" }
+        }
+      },
+      "put": {
+        "summary": "Update Profile & Taste Preferences",
+        "security": [{ "BearerAuth": [] }, { "DevUserId": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "displayName": { "type": "string" },
+                  "phone": { "type": "string" },
+                  "preferences": {
+                    "type": "object",
+                    "properties": {
+                      "favoriteBean": { "type": "string" },
+                      "roastPreference": { "type": "string" },
+                      "preferredSeating": { "type": "string" },
+                      "dietary": { "type": "array", "items": { "type": "string" } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Profile updated" }
+        }
+      }
+    },
+    "/api/users/loyalty": {
+      "get": {
+        "summary": "Get Loyalty Tier and Rewards Catalog",
+        "security": [{ "BearerAuth": [] }, { "DevUserId": [] }],
+        "responses": {
+          "200": { "description": "Loyalty details" }
+        }
+      }
+    },
+    "/api/recommendations/personalize": {
+      "post": {
+        "summary": "Personalized AI Sommelier Recommendation",
+        "description": "Recommends coffee extraction, food pairing, and vinyl track based on customer mood, time of day, and flavor preferences. Powered by Gemini AI or intelligent Kissaten heuristic engine.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mood": { "type": "string", "example": "reflective" },
+                  "timeOfDay": { "type": "string", "enum": ["morning", "afternoon", "dusk", "midnight"], "example": "midnight" },
+                  "flavorProfile": { "type": "string", "example": "dark-chocolate and molasses" },
+                  "dietary": { "type": "array", "items": { "type": "string" }, "example": ["dairy-free"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Personalized recommendation" }
+        }
+      }
+    },
+    "/api/recommendations/pairing": {
+      "post": {
+        "summary": "Smart Item Pairing (Coffee + Food + Vinyl)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["menuItemId"],
+                "properties": {
+                  "menuItemId": { "type": "string", "example": "menu_001" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Item pairing" }
+        }
+      }
+    },
+    "/api/recommendations/trending": {
+      "get": {
+        "summary": "Trending Selections",
+        "responses": {
+          "200": { "description": "Trending items" }
+        }
+      }
+    }
+  }
+}
