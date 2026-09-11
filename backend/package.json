@@ -1,0 +1,31 @@
+{
+  "name": "smart-cafe-backend",
+  "version": "1.0.0",
+  "description": "Smart Café REST API Backend with Firebase Firestore, Auth, and AI Recommendations",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/seeds/seedData.js",
+    "test": "node test/api.test.js"
+  },
+  "keywords": [
+    "smart-cafe",
+    "kissaten",
+    "firebase",
+    "express",
+    "rest-api",
+    "ai-recommendations"
+  ],
+  "author": "Smart Café Team",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "firebase-admin": "^13.1.0",
+    "morgan": "^1.10.0",
+    "swagger-ui-express": "^5.0.1"
+  }
+}

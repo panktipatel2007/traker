@@ -1,0 +1,18 @@
+{
+  "name": "smart-cafe-workspace",
+  "version": "1.0.0",
+  "description": "Smart Café Web Application Backend & API",
+  "scripts": {
+    "start": "npm --prefix backend start",
+    "dev": "npm --prefix backend run dev",
+    "seed": "npm --prefix backend run seed",
+    "test": "npm --prefix backend test",
+    "install:backend": "npm --prefix backend install"
+  },
+  "keywords": [
+    "smart-cafe",
+    "kissaten"
+  ],
+  "author": "",
+  "license": "ISC"
+}
